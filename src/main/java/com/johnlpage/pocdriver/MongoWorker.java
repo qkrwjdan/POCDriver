@@ -74,36 +74,36 @@ public class MongoWorker implements Runnable {
             MongoDatabase admindb = mongoClient.getDatabase("admin");
             Boolean split = false;
 
-            while (!split) {
+            // while (!split) {
 
-                try {
-                    logger.debug("Splitting a chunk for worker " + workerID);
-                    admindb.runCommand(new Document("split", testOpts.databaseName + "." + testOpts.collectionName)
-                            .append("middle",
-                                    new Document("_id", new Document("w", workerID).append("i", sequence + 1))));
-                    // As of 4.4 we add this to cap the range and avoid copying back
-                    // with 30 minute timeout.
-                    admindb.runCommand(new Document("split", testOpts.databaseName + "." + testOpts.collectionName)
-                            .append("middle",
-                                    new Document("_id", new Document("w", workerID + 1).append("i", sequence + 1))));
+            //     try {
+            //         logger.debug("Splitting a chunk for worker " + workerID);
+            //         admindb.runCommand(new Document("split", testOpts.databaseName + "." + testOpts.collectionName)
+            //                 .append("middle",
+            //                         new Document("_id", new Document("w", workerID).append("i", sequence + 1))));
+            //         // As of 4.4 we add this to cap the range and avoid copying back
+            //         // with 30 minute timeout.
+            //         admindb.runCommand(new Document("split", testOpts.databaseName + "." + testOpts.collectionName)
+            //                 .append("middle",
+            //                         new Document("_id", new Document("w", workerID + 1).append("i", sequence + 1))));
 
-                    split = true;
-                } catch (Exception e) {
+            //         split = true;
+            //     } catch (Exception e) {
 
-                    if (e.getMessage().contains("is a boundary key of existing")) {
-                        split = true;
-                    } else {
-                        logger.warn(e.getMessage());
-                        try {
-                            logger.debug("Sleeping before trying again");
-                            Thread.sleep(1000);
-                        } catch (Exception ignored) {
-                            logger.warn(e.getMessage());
-                        }
-                    }
-                }
+            //         if (e.getMessage().contains("is a boundary key of existing")) {
+            //             split = true;
+            //         } else {
+            //             logger.warn(e.getMessage());
+            //             try {
+            //                 logger.debug("Sleeping before trying again");
+            //                 Thread.sleep(1000);
+            //             } catch (Exception ignored) {
+            //                 logger.warn(e.getMessage());
+            //             }
+            //         }
+            //     }
 
-            }
+            // }
 
             // And move that to a shard - which shard? take my workerid and mod
             // it with the number of shards
@@ -121,30 +121,30 @@ public class MongoWorker implements Runnable {
 
             boolean move = false;
 
-            while (!move) {
-                try {
-                    logger.debug("Moving chunk for worker " + workerID + " to " + shardName);
-                    admindb.runCommand(new Document("moveChunk", testOpts.databaseName + "." + testOpts.collectionName)
-                            .append("find", new Document("_id", new Document("w", workerID).append("i", sequence + 1)))
-                            .append("to", shardName).append("_secondaryThrottle", true).append("_waitForDelete", true)
-                            .append("writeConcern", new Document("w", "majority")));
-                    move = true;
-                } catch (Exception e) {
+            // while (!move) {
+            //     try {
+            //         logger.debug("Moving chunk for worker " + workerID + " to " + shardName);
+            //         admindb.runCommand(new Document("moveChunk", testOpts.databaseName + "." + testOpts.collectionName)
+            //                 .append("find", new Document("_id", new Document("w", workerID).append("i", sequence + 1)))
+            //                 .append("to", shardName).append("_secondaryThrottle", true).append("_waitForDelete", true)
+            //                 .append("writeConcern", new Document("w", "majority")));
+            //         move = true;
+            //     } catch (Exception e) {
 
-                    if (e.getMessage().contains("that chunk is already on that shard")) {
-                        move = true;
-                    } else {
-                        logger.warn("MOVE CHUNK ERROR: " + e.getMessage());
-                        try {
-                            logger.warn("Sleeping before trying again");
-                            Thread.sleep(1000);
-                        } catch (Exception ignored) {
-                            logger.warn(e.getMessage());
-                        }
-                    }
-                }
+            //         if (e.getMessage().contains("that chunk is already on that shard")) {
+            //             move = true;
+            //         } else {
+            //             logger.warn("MOVE CHUNK ERROR: " + e.getMessage());
+            //             try {
+            //                 logger.warn("Sleeping before trying again");
+            //                 Thread.sleep(1000);
+            //             } catch (Exception ignored) {
+            //                 logger.warn(e.getMessage());
+            //             }
+            //         }
+            //     }
 
-            }
+            // }
 
             logger.debug("Moved {w:" + workerID + ",i:" + (sequence + 1) + "} to " + shardName);
             numShards = testOpts.numShards;

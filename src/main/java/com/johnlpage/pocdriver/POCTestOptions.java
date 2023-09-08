@@ -28,8 +28,8 @@ public class POCTestOptions {
 	boolean sharded = false;
 	boolean singleserver = false;
 	private String statsfile = "pocload.csv";
-	String databaseName = "POCDB";
-	String collectionName = "POCCOLL";
+	String databaseName = "pocdb";
+	String collectionName = "poccoll";
 	String workflow = null;
 	boolean emptyFirst = false;
 	boolean printOnly = false;

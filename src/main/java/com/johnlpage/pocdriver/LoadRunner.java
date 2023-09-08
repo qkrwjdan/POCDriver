@@ -91,10 +91,10 @@ public class LoadRunner {
             // Turn the auto balancer off - good code rarely needs it running constantly
             MongoDatabase configdb = mongoClient.getDatabase("config");
             MongoCollection<Document> settings = configdb.getCollection("settings");
-            UpdateResult rval = settings.updateOne(eq("_id", "balancer"),
-                    new Document("$set", new Document("stopped", true)), new UpdateOptions().upsert(true));
-            logger.info(rval.toString());
-            logger.info("Balancer disabled");
+            // UpdateResult rval = settings.updateOne(eq("_id", "balancer"),
+            //         new Document("$set", new Document("stopped", true)), new UpdateOptions().upsert(true));
+            // logger.info(rval.toString());
+            // logger.info("Balancer disabled");
             try {
                 logger.info("Enabling Sharding on Database");
                 admindb.runCommand(new Document("enableSharding", testOpts.databaseName));
