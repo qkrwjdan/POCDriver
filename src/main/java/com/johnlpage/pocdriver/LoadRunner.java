@@ -91,7 +91,7 @@ public class LoadRunner {
             // Turn the auto balancer off - good code rarely needs it running constantly
             MongoDatabase configdb = mongoClient.getDatabase("config");
             MongoCollection<Document> settings = configdb.getCollection("settings");
-            // UpdateResult rval = settings.updateOne(eq("_id", "balancer"),
+            // UpdateResult rval = settings.updateOne(eq("id", "balancer"),
             //         new Document("$set", new Document("stopped", true)), new UpdateOptions().upsert(true));
             // logger.info(rval.toString());
             // logger.info("Balancer disabled");
@@ -107,7 +107,7 @@ public class LoadRunner {
                 logger.info("Sharding Collection");
                 admindb.runCommand(
                         new Document("shardCollection", testOpts.databaseName + "." + testOpts.collectionName)
-                                .append("key", new Document("_id", 1)));
+                                .append("key", new Document("id", 1)));
             } catch (Exception e) {
                 if (!e.getMessage().contains("already"))
                     logger.warn(e.getMessage());

@@ -96,7 +96,7 @@ public class POCTestOptions {
 		cliopt.addOption("x","indexes",true,"Number of secondary indexes - does not remove existing (default 0)");
 		cliopt.addOption("y","collections",true,"Number of collections to span the workload over, implies w (default 1)");
 		cliopt.addOption("z","zipfian",true,"Enable zipfian distribution over X number of documents (default 0)");
-		cliopt.addOption(null,"threadIdStart",true,"Start 'workerId' for each thread. 'w' value in _id. (default 0)");
+		cliopt.addOption(null,"threadIdStart",true,"Start 'workerId' for each thread. 'w' value in id. (default 0)");
 		cliopt.addOption(null,"fulltext",false,"Create fulltext index (default false)");
 		cliopt.addOption(null,"binary",true,"Add a binary blob of size KB");
 		cliopt.addOption(null,"rangedocs",true,"Number of documents to fetch for range queries (default 10)");

@@ -27,7 +27,7 @@ public class TestRecordTest {
         //System.out.println(testRecord.internalDoc.toJson());
         Set<String> fields = testRecord.internalDoc.keySet();
         //System.out.println(fields);
-        // fields + _id + bin
+        // fields + id + bin
         assertEquals(nFields + 2, fields.size());
     }
 
@@ -88,7 +88,7 @@ public class TestRecordTest {
         //System.out.println(testRecord.internalDoc.toJson());
         Set<String> fields = testRecord.internalDoc.keySet();
         //System.out.println(fields);
-        // fields + _id + bin
+        // fields + id + bin
         assertTrue(testRecord.internalDoc.containsKey("location"));
         assertTrue(Arrays.stream(locations).anyMatch(l -> testRecord.internalDoc.getString("location").equals(l)));
     }

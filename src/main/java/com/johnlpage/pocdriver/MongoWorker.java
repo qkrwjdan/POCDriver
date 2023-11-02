@@ -64,7 +64,7 @@ public class MongoWorker implements Runnable {
             logger.debug("Sharded and not a single server");
 
             Document dbinfo = mongoClient.getDatabase("config").getCollection("databases")
-                    .find(new Document("_id", testOpts.databaseName)).first();
+                    .find(new Document("id", testOpts.databaseName)).first();
 
             if (dbinfo != null) {
                 primaryShard = dbinfo.getString("primary");
@@ -80,12 +80,12 @@ public class MongoWorker implements Runnable {
             //         logger.debug("Splitting a chunk for worker " + workerID);
             //         admindb.runCommand(new Document("split", testOpts.databaseName + "." + testOpts.collectionName)
             //                 .append("middle",
-            //                         new Document("_id", new Document("w", workerID).append("i", sequence + 1))));
+            //                         new Document("id", new Document("w", workerID).append("i", sequence + 1))));
             //         // As of 4.4 we add this to cap the range and avoid copying back
             //         // with 30 minute timeout.
             //         admindb.runCommand(new Document("split", testOpts.databaseName + "." + testOpts.collectionName)
             //                 .append("middle",
-            //                         new Document("_id", new Document("w", workerID + 1).append("i", sequence + 1))));
+            //                         new Document("id", new Document("w", workerID + 1).append("i", sequence + 1))));
 
             //         split = true;
             //     } catch (Exception e) {
@@ -117,7 +117,7 @@ public class MongoWorker implements Runnable {
 
             Document obj = mongoClient.getDatabase("config").getCollection("shards").find().skip(shardno).first();
 
-            String shardName = obj.getString("_id");
+            String shardName = obj.getString("id");
 
             boolean move = false;
 
@@ -125,7 +125,7 @@ public class MongoWorker implements Runnable {
             //     try {
             //         logger.debug("Moving chunk for worker " + workerID + " to " + shardName);
             //         admindb.runCommand(new Document("moveChunk", testOpts.databaseName + "." + testOpts.collectionName)
-            //                 .append("find", new Document("_id", new Document("w", workerID).append("i", sequence + 1)))
+            //                 .append("find", new Document("id", new Document("w", workerID).append("i", sequence + 1)))
             //                 .append("to", shardName).append("_secondaryThrottle", true).append("_waitForDelete", true)
             //                 .append("writeConcern", new Document("w", "majority")));
             //         move = true;
@@ -224,11 +224,11 @@ public class MongoWorker implements Runnable {
         Document limits = new Document("$gt", new Document("w", workerID));
         limits.append("$lt", new Document("w", workerID + 1));
 
-        query.append("_id", limits);
+        query.append("id", limits);
 
-        Document myDoc = coll.find(query).projection(include("_id")).sort(descending("_id")).first();
+        Document myDoc = coll.find(query).projection(include("id")).sort(descending("id")).first();
         if (myDoc != null) {
-            Document id = (Document) myDoc.get("_id");
+            Document id = (Document) myDoc.get("id");
             rval = id.getInteger("i") + 1;
         }
         return rval;
@@ -275,7 +275,7 @@ public class MongoWorker implements Runnable {
                         if (o instanceof InsertOneModel<?>) {
                             @SuppressWarnings("unchecked")
                             InsertOneModel<Document> a = (InsertOneModel<Document>) o;
-                            Document id = (Document) a.getDocument().get("_id");
+                            Document id = (Document) a.getDocument().get("id");
 
                             int opthread = id.getInteger("w");
                             int opid = id.getInteger("i");
@@ -328,7 +328,7 @@ public class MongoWorker implements Runnable {
 
         int recordno = rest + getNextVal(range);
 
-        query.append("_id", new Document("w", workerID).append("i", recordno));
+        query.append("id", new Document("w", workerID).append("i", recordno));
         Date starttime = new Date();
         Document myDoc;
         List<String> projFields = new ArrayList<String>(testOpts.numFields);
@@ -365,7 +365,7 @@ public class MongoWorker implements Runnable {
 
         int recordno = rest + getNextVal(range);
 
-        query.append("_id", new Document("w", workerID).append("i", recordno));
+        query.append("id", new Document("w", workerID).append("i", recordno));
 
         return query;
     }
@@ -376,7 +376,7 @@ public class MongoWorker implements Runnable {
         Document query = new Document();
         List<String> projFields = new ArrayList<String>(testOpts.numFields);
         int recordno = getNextVal(sequence);
-        query.append("_id", new Document("$gt", new Document("w", workerID).append("i", recordno)));
+        query.append("id", new Document("$gt", new Document("w", workerID).append("i", recordno)));
         Date starttime = new Date();
         MongoCursor<Document> cursor;
         if (testOpts.projectFields == 0) {
@@ -438,9 +438,9 @@ public class MongoWorker implements Runnable {
 
             int recordno = rest + getNextVal(range);
 
-            query.append("_id", new Document("w", workerID).append("i", recordno));
+            query.append("id", new Document("w", workerID).append("i", recordno));
         } else {
-            query.append("_id", key);
+            query.append("id", key);
         }
 
         int updateFields = (testOpts.updateFields <= testOpts.numFields) ? testOpts.updateFields : testOpts.numFields;
@@ -451,7 +451,7 @@ public class MongoWorker implements Runnable {
             change = new Document("$set", fields);
         } else {
             TestRecord tr = createNewRecord();
-            tr.internalDoc.remove("_id");
+            tr.internalDoc.remove("id");
             change = new Document("$set", tr.internalDoc);
         }
 
@@ -479,9 +479,9 @@ public class MongoWorker implements Runnable {
 
             int recordno = rest + getNextVal(range);
 
-            query.append("_id", new Document("w", workerID).append("i", recordno));
+            query.append("id", new Document("w", workerID).append("i", recordno));
         } else {
-            query.append("_id", key);
+            query.append("id", key);
         }
 
         int updateFields = (testOpts.updateFields <= testOpts.numFields) ? testOpts.updateFields : testOpts.numFields;
@@ -575,7 +575,7 @@ public class MongoWorker implements Runnable {
                     if (wfop.equals("i")) {
                         // Insert a new record, push it's key onto our stack
                         TestRecord r = insertNewRecord(bulkWriter);
-                        keyStack.add((Document) r.internalDoc.get("_id"));
+                        keyStack.add((Document) r.internalDoc.get("id"));
                         bulkops++;
                         logger.debug("Insert");
                     } else if (wfop.equals("u")) {
@@ -601,13 +601,13 @@ public class MongoWorker implements Runnable {
                         // Find a new record an put it on the stack
                         Document r = simpleKeyQuery();
                         if (r != null) {
-                            keyStack.add((Document) r.get("_id"));
+                            keyStack.add((Document) r.get("id"));
                         }
                     } else if (wfop.equals("K")) {
-                        // Get a new _id but don't read the doc and put it on the stack
+                        // Get a new id but don't read the doc and put it on the stack
                         Document r = simpleGetKey();
                         if (r != null) {
-                            keyStack.add((Document) r.get("_id"));
+                            keyStack.add((Document) r.get("id"));
                         }
                     }
 

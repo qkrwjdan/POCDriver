@@ -74,7 +74,7 @@ public class TestRecord {
 
 	private void AddOID(int workerid, int sequence) {
 		Document oid = new Document("w",workerid).append("i", sequence);
-		internalDoc.append("_id", oid);
+		internalDoc.append("id", oid);
 	}
 
 	// Just so we always know what the type of a given field is
